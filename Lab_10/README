@@ -1,0 +1,40 @@
+# Spurious Correlation & Multicollinearity in Macroeconomic Time-Series
+
+**Stack:** Python · FRED API · Pandas · Seaborn · Statsmodels · Plotly
+
+---
+
+## Overview
+
+This project investigates two of the most consequential pitfalls in applied econometrics: spurious correlation arising from non-stationary time-series data, and multicollinearity obscuring the independent explanatory power of macroeconomic predictors. Using live data retrieved from the Federal Reserve Economic Data (FRED) API, the analysis moves systematically from diagnosis to remedy — demonstrating each concept with reproducible Python code and interactive visualizations.
+
+---
+
+## Methodology
+
+### 1 · Data Acquisition
+Monthly observations for five macroeconomic indicators were sourced via the FRED API using `pandas-datareader`: the Consumer Price Index (`CPIAUCSL`), Unemployment Rate (`UNRATE`), Federal Funds Rate (`FEDFUNDS`), Industrial Production Index (`INDPRO`), and M2 Money Supply (`M2SL`), covering January 2010 through January 2024. Series were resampled to a consistent monthly frequency and cleaned prior to analysis.
+
+### 2 · Visualizing the Correlation Trap
+A Pearson correlation matrix was computed on the raw level series and rendered as a `seaborn` heatmap. The resulting near-unity correlations between trending variables — CPI, M2, and Industrial Production — illustrate the classical correlation trap: integrated I(1) series share upward drift by construction, producing inflated coefficients that carry no causal content.
+
+### 3 · Multicollinearity Diagnostics via VIF
+Variance Inflation Factors were computed using `statsmodels` to quantify linear redundancy among predictors. VIF scores well above the conventional threshold of 10 confirmed severe multicollinearity in the raw-levels specification, indicating that OLS coefficient estimates derived from this feature set would be unreliable and standard errors inflated.
+
+### 4 · Transformation to Year-over-Year Growth Rates
+Non-stationary trending variables — CPI, Industrial Production, and M2 — were transformed to Year-over-Year percentage growth rates, inducing approximate stationarity by removing the shared deterministic trend. Unemployment and the federal funds rate were retained in levels, as both exhibit mean-reversion over the sample period. The corrected correlation matrix showed a material reduction in spurious associations, yielding a structurally interpretable feature set.
+
+### 5 · Interactive Correlation Dashboard
+A `plotly` heatmap dashboard was built to enable direct visual comparison between the raw-levels and YoY-transformed correlation matrices. A dropdown menu implemented via Plotly's `updatemenus` API toggles between both views client-side — no live Python backend required. The `RdBu` diverging color scale and inline cell annotations facilitate precise, side-by-side interpretation.
+
+### 6 · Causal Structure via Directed Acyclic Graph
+To move beyond statistical association toward hypothesized causal structure, a Directed Acyclic Graph (DAG) was constructed encoding theory-driven assumptions about directional relationships among variables — for instance, the monetary transmission channel from M2 growth to inflation. The DAG makes modeling assumptions explicit and auditable, guarding against the conflation of correlation with causation that motivates the project as a whole.
+
+---
+
+## Key Takeaways
+
+- Raw correlation matrices of macroeconomic level data are largely uninformative — shared trends dominate the signal.
+- VIF is a practical first-pass diagnostic for multicollinearity but does not address non-stationarity directly; both problems require separate treatment.
+- YoY transformation is a defensible and interpretable remedy for I(1) series, though it removes long-run comovement by design — a trade-off worth stating explicitly.
+- DAGs enforce transparency about causal assumptions that correlation analysis cannot surface on its own.
